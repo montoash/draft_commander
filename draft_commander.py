@@ -1,9 +1,36 @@
 """
-Draft Commander v38 - single-objective draft engine for Sleeper snake drafts.
+Draft Commander v39 - single-objective draft engine for Sleeper snake drafts.
 
 Tuned for:
     10 teams | 1.0 PPR | 1QB / 2RB / 2WR / 1TE / 2FLEX / 1K / 1DST / 5BN
     15 rounds | 6 of 10 teams make the playoffs | playoffs weeks 15-17
+
+WHAT CHANGED FROM v38
+----------------------
+All four found in one terminal transcript of a live start-up.
+
+1. The banner, the argparse description and the shutdown line still said v35.
+   Three hardcoded strings the version cleanup missed, so the program
+   announced the wrong engine on every run. They read ENGINE_VERSION now, and
+   nothing in this file hardcodes a version except that constant.
+
+2. repair_projections would lift a player carrying a real absence. It compares
+   a projection to the median of its ADP neighbours and shrinks outliers
+   toward it, which is right for a broken stat row and wrong for a designation
+   - ADP is the stale side of that disagreement, set before the news. Zach
+   Charbonnet, on PUP, went from 67.2 to 99.8 and then sat in the candidate
+   pool at a number nobody believes. Upward repair is now refused for Out, IR,
+   PUP and Suspended; downward repair still runs.
+
+3. The data-quality warnings measured the whole NFL universe. "62% of players
+   have no usable ADP" is true on every run - the universe is mostly deep
+   bench players who have never had one - so a warning meant for genuinely
+   degraded input fired constantly and taught the reader to ignore it. Both
+   the ADP and market-curve checks now measure the top teams x rounds players
+   by projection, which is the pool the draft can actually reach.
+
+4. The repair block printed "17 projections were shrunk" and then listed
+   eight, with nothing saying the rest existed.
 
 WHAT CHANGED FROM v37
 ----------------------
@@ -194,7 +221,7 @@ BASE = "https://api.sleeper.app/v1"
 FFC = "https://fantasyfootballcalculator.com/api/v1/adp"
 FANTASYCALC = "https://api.fantasycalc.com/values/current"
 
-ENGINE_VERSION = "v38"
+ENGINE_VERSION = "v39"
 POLL_SECONDS = 2.0
 TOP_N = 3
 
@@ -730,16 +757,24 @@ def data_quality(players: dict[str, Player], shape: LeagueShape) -> dict[str, An
     """
     skill = [p for p in players.values() if p.pos in SKILL]
     src_counts = Counter(p.proj_source for p in skill)
-    n = max(1, len(skill))
-    curve = src_counts.get("market_curve", 0) / n
-    no_adp = sum(1 for p in skill if p.adp >= 340) / n
+    # Judge the pool that will actually be drafted, not the whole NFL. Measured
+    # over all ~730 skill players, "62% have no usable ADP" is true on every
+    # single run - the universe is mostly deep bench players who have never had
+    # an ADP - so the warning fired constantly and told the reader nothing. The
+    # question that matters is whether the players in range of this draft are
+    # covered.
+    pool_n = max(1, shape.teams * shape.rounds)
+    draftable = sorted(skill, key=lambda p: -p.proj_adj)[:pool_n]
+    n = max(1, len(draftable))
+    curve = sum(1 for p in draftable if p.proj_source == "market_curve") / n
+    no_adp = sum(1 for p in draftable if p.adp >= 340) / n
     warnings: list[str] = []
     if curve > 0.35:
-        warnings.append(f"{curve:.0%} of projections are the fallback market curve - "
+        warnings.append(f"{curve:.0%} of draftable projections are the fallback market curve - "
                         f"Sleeper has little or no {SEASON} projection data yet. "
                         f"The engine is effectively ranking on ADP.")
     if no_adp > 0.5:
-        warnings.append(f"{no_adp:.0%} of players have no usable ADP. Survival "
+        warnings.append(f"{no_adp:.0%} of draftable players have no usable ADP. Survival "
                         f"probabilities will be weak until the room calibrates itself.")
     top = sorted(skill, key=lambda p: p.adp)[:60]
     if top and sum(1 for p in top if p.proj_source == "market_curve") / len(top) > 0.25:
@@ -784,7 +819,18 @@ def repair_projections(
                 continue
             excess = abs(z) - tolerate_z
             w = 1.0 / (1.0 + excess * excess)
-            p.proj_adj = w * p.proj + (1.0 - w) * med
+            fixed = w * p.proj + (1.0 - w) * med
+            # A player on IR, PUP, Out or Suspended has a low projection for a
+            # reason, and ADP is the stale side of that disagreement - it was
+            # set before the news. Shrinking him toward his ADP neighbours
+            # deletes the only real information in the row. Observed live:
+            # Zach Charbonnet, PUP, was lifted from 67.2 to 99.8 and then sat
+            # in the candidate pool at a projection nobody believes. Repairing
+            # DOWNWARD is still allowed - that direction catches a broken stat
+            # row rather than overruling a designation.
+            if fixed > p.proj and (p.injury or "") in INJURY_BLOCK:
+                continue
+            p.proj_adj = fixed
             p.ppg = p.proj_adj / FULL_SEASON_WEEKS
             repairs.append((p.name, round(p.proj, 1), round(p.proj_adj, 1)))
 
@@ -3030,7 +3076,7 @@ def emit_turn(state: DraftState, pick_no: int, base: Baseline) -> None:
 # CLI / MAIN
 # =============================================================================
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Draft Commander v35")
+    p = argparse.ArgumentParser(description=f"Draft Commander {ENGINE_VERSION}")
     p.add_argument("draft_id", nargs="?", default=None, help="Sleeper draft ID or URL")
     p.add_argument("--slot", type=int, default=None, help="Your draft slot (1-N)")
     p.add_argument("--league", default=None, help="Override LEAGUE_ID")
@@ -3095,7 +3141,7 @@ def resolve_slot(draft: dict, uid: str, picks: list[dict],
 
 def main() -> None:
     print("=" * 68, flush=True)
-    print("DRAFT COMMANDER v35", flush=True)
+    print(f"DRAFT COMMANDER {ENGINE_VERSION.upper()}", flush=True)
     print("Single objective: expected starting-lineup points, playoff-weighted.", flush=True)
     print("=" * 68, flush=True)
     print(f"[env] telegram={'ok' if TELEGRAM_BOT_TOKEN else 'MISSING'} user={USER_ID or 'none'}",
@@ -3114,6 +3160,8 @@ def main() -> None:
     if repairs:
         print(f"[repair] {len(repairs)} projections disagreed with the market and were shrunk:",
               flush=True)
+        if len(repairs) > 8:
+            print(f"          (largest 8 of {len(repairs)} shown)", flush=True)
         for name, was, now in repairs[:8]:
             print(f"          {name:<24} {was:>7.1f} -> {now:>7.1f}", flush=True)
     base = freeze_baseline(players, shape)
@@ -3233,5 +3281,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n[stopped] Draft Commander v35 terminated.")
+        print(f"\n[stopped] Draft Commander {ENGINE_VERSION} terminated.")
         sys.exit(0)
