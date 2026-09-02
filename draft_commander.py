@@ -208,6 +208,7 @@ ADP_TAU = 3.0
 NEED_MULT_OPEN_SLOT = 1.75
 NEED_MULT_SATURATED = 0.30
 LATE_ONLY_SUPPRESSION = 0.03
+LATE_ONLY_FORCED = 3.0     # _need_mult when a K/DST slot must still be filled
 
 SKILL = frozenset({"QB", "RB", "WR", "TE"})
 LATE_ONLY = frozenset({"K", "DEF"})
@@ -1545,7 +1546,7 @@ def _need_mult(pos: str, counts: Counter, shape: LeagueShape, rnd: int) -> float
     if pos in LATE_ONLY:
         if rnd < shape.rounds - 1:
             return LATE_ONLY_SUPPRESSION
-        return 3.0 if counts.get(pos, 0) < shape.slots.get(pos, 1) else 0.05
+        return LATE_ONLY_FORCED if counts.get(pos, 0) < shape.slots.get(pos, 1) else 0.05
     have = counts.get(pos, 0)
     if pos == "QB" and not shape.superflex:
         if have >= 1:
@@ -1600,14 +1601,29 @@ def survival_probs(pool: Sequence[Player], pick_no: int, my_next: int, state: Dr
         weights: list[tuple[str, float]] = []
         wsum = 0.0
         rank = 0.0
+        pos_rank: dict[str, float] = defaultdict(float)
         for p in board:
             a = alive.get(p.pid, 0.0)
             if a <= 1e-6:
                 continue
-            if rank > cutoff:
+            nm = _need_mult(p.pos, counts, shape, rnd)
+            # A team that MUST still fill its K or DST slot is not shopping the
+            # top of the board - it is shopping the top of THAT POSITION. Ranked
+            # globally, the best remaining defense sits behind fifty skill
+            # players, exp(-rank/tau) drives its weight to nearly zero, and
+            # multiplying by the need term cannot bring it back. Measured across
+            # drafts 1400905838322855936 and 1400911267358629888, that made the
+            # model over-predict defense survival by +0.53: at pick 160 it gave
+            # the four best remaining defenses 0.64-0.72 and every one of them
+            # was gone seventeen picks later. Ranking within the position for a
+            # forced slot is what makes the endgame behave like the endgame.
+            forced_need = p.pos in LATE_ONLY and nm >= LATE_ONLY_FORCED
+            r = pos_rank[p.pos] if forced_need else rank
+            if r > cutoff and not forced_need:
                 break
-            w = a * math.exp(-rank / tau) * (_need_mult(p.pos, counts, shape, rnd) ** gamma)
+            w = a * math.exp(-r / tau) * (nm ** gamma)
             rank += a                      # expected depth, net of who is gone
+            pos_rank[p.pos] += a
             if w > 0.0:
                 weights.append((p.pid, w))
                 wsum += w
