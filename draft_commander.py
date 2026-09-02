@@ -1,9 +1,47 @@
 """
-Draft Commander v37 - single-objective draft engine for Sleeper snake drafts.
+Draft Commander v38 - single-objective draft engine for Sleeper snake drafts.
 
 Tuned for:
     10 teams | 1.0 PPR | 1QB / 2RB / 2WR / 1TE / 2FLEX / 1K / 1DST / 5BN
     15 rounds | 6 of 10 teams make the playoffs | playoffs weeks 15-17
+
+WHAT CHANGED FROM v37
+----------------------
+Two defects in the same sum, which had to be fixed together.
+
+1. The injury sampler did not pair. _sample_absences walked one shared RNG
+   down the roster, two draws per player. That aligns the streams inside a
+   single simulation, but an N-player roster consumes 2N draws per sim and an
+   (N+1)-player roster consumes 2N+2, so from the second simulation onward the
+   base call and the candidate call were reading different parts of the
+   stream. Only the first sim of each was ever paired, and the docstring
+   claimed a property the code did not have. Each player's draw is now a pure
+   function of (stream, sim, player id), so roster size and ordering cannot
+   move it. Measured at pick 160 of draft 1400957080872951808, sims=60: the
+   standard deviation of one marginal value fell from 3.04 to 0.06 for a
+   kicker and from 2.98 to 0.57 for a backup quarterback, with the means
+   landing where the old sampler's high-sim runs already said they should. The
+   late-round gaps this engine resolves are routinely one to five points, so
+   three points of noise was deciding picks.
+
+2. The two halves of the pick score were on different scales. It was
+   sampled_mv(candidate) + deterministic_e_next(follower). A player filling a
+   starting slot is worth full value deterministically and gets discounted by
+   sampling; a pure backup is worth almost nothing deterministically and gets
+   inflated by it, because his whole value is the weeks he covers. Adding one
+   of each pays the backup twice and the starter never. At pick 160 the kicker
+   filling the last open starting slot scored 13.55 deterministic against
+   11.62 sampled while a backup quarterback scored 4.65 against 12.88 - an 8.2
+   point swing from nothing but the choice of scale. Both terms are sampled
+   now. Making both deterministic instead was tried and is wrong the other
+   way: a byes-only model prices an empty single slot near ninety points and a
+   bench receiver near zero, and it drafts tight ends in the third round.
+
+These interact. While the sampler leaked three points of noise the scale bias
+was often buried in it; with the draws paired the bias decides cleanly, and
+fixing the noise alone flipped a defense the audit grades "best available use
+of this pick" into a backup quarterback. Shipping either one alone is worse
+than shipping neither.
 
 WHAT CHANGED FROM v36
 ----------------------
@@ -91,6 +129,7 @@ CLI
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import math
@@ -155,7 +194,7 @@ BASE = "https://api.sleeper.app/v1"
 FFC = "https://fantasyfootballcalculator.com/api/v1/adp"
 FANTASYCALC = "https://api.fantasycalc.com/values/current"
 
-ENGINE_VERSION = "v37"
+ENGINE_VERSION = "v38"
 POLL_SECONDS = 2.0
 TOP_N = 3
 
@@ -165,6 +204,7 @@ CAND_PER_POS = 18        # cap per position inside that pool
 NEXT_POOL = 32           # follow-on candidates in the two-ply expectation
 ROLLOUT_DEPTH = 4        # future picks planned out before the horizon is cut
 ROLLOUT_K = 14           # candidates given the full multi-pick rollout
+SAMPLED_NEXT_N = 10      # followers priced on the sampled scale in the re-score
 RANK_SIMS = 60           # injury-sampled ranking pass, common random numbers
 SHORTLIST_SIMS = 260     # deeper re-score of the top few
 SHORTLIST_N = 6
@@ -193,17 +233,15 @@ INJURY_GAMES_MULT = {
 # Week-to-week scoring dispersion, as a coefficient of variation.
 WEEKLY_CV = {"QB": 0.34, "RB": 0.56, "WR": 0.62, "TE": 0.60, "K": 0.44, "DEF": 0.66}
 
-# KNOWN GAP - the two-ply option term still favours deferring a need.
-# EV(c) = MV(c) + e_next(c), and e_next is near-identical for every candidate
-# who leaves a hole open while collapsing for the one who fills it. At pick 129
-# of draft 1400949851704836096, with the round-11 gate open, LAR Defense scores
-# marginal value 23.81 against 19.54 for the tight end actually taken and 11.81
-# for a backup quarterback - and plan_ev puts all three inside 0.3 points of
-# each other, because the defense's e_next drops to 13.53 while everyone else
-# keeps 26.44. The gate fix makes the defense visible; this is why it may still
-# not be chosen. Do not paper over it with a positional bonus - the fix is to
-# make the continuation term price the same roster on both sides of the
-# comparison, and it needs replay evidence from several drafts before it ships.
+# KNOWN GAP - the two-ply option term still favours deferring a need, though
+# less than it did. e_next is near-identical for every candidate who leaves a
+# hole open and collapses for the one who fills it, so a plan that defers gets
+# credited with the hole-filler it did not take. Sampling both terms removed
+# the scale artifact stacked on top of this, and plan_ev's multi-pick rollout
+# blunts it, but the asymmetry itself is structural: the fix is a continuation
+# term that prices the same roster on both sides of the comparison, and it
+# needs replay evidence from several drafts before it ships. Do not paper over
+# it with a positional bonus.
 
 # KNOWN GAP - season-long projection uncertainty.
 # Projections are point estimates and the estimate is far shakier for a
@@ -850,22 +888,50 @@ def expected_games(p: Player) -> float:
     return GAMES_BY_POS.get(p.pos, 15.2) * INJURY_GAMES_MULT.get(p.injury or "", 1.0)
 
 
-def _sample_absences(roster: Sequence[Player],
-                     rng: random.Random) -> dict[str, tuple[int, int]]:
+_M64 = 0xFFFFFFFFFFFFFFFF
+
+
+def _pid_key(pid: str) -> int:
+    """Stable 64-bit key for a player id, identical across processes."""
+    return int.from_bytes(hashlib.blake2b(pid.encode(), digest_size=8).digest(), "big")
+
+
+def _two_uniforms(key: int) -> tuple[float, float]:
+    """Two uniforms from one key (splitmix64). Deterministic and order-free."""
+    out = []
+    z = key & _M64
+    for _ in range(2):
+        z = (z + 0x9E3779B97F4A7C15) & _M64
+        x = z
+        x = ((x ^ (x >> 30)) * 0xBF58476D1CE4E5B9) & _M64
+        x = ((x ^ (x >> 27)) * 0x94D049BB133111EB) & _M64
+        x ^= x >> 31
+        out.append((x >> 11) / float(1 << 53))
+    return out[0], out[1]
+
+
+def _sample_absences(roster: Sequence[Player], stream: int,
+                     sim: int) -> dict[str, tuple[int, int]]:
     """One contiguous injury absence per player, as (first_week, last_week).
 
-    Exactly TWO random draws are consumed per player no matter what the
-    outcome is. That matters more than it looks: marginal value is measured as
-    a difference between two rosters, and if a player who happens to miss zero
-    games consumes fewer draws than one who misses four, the random streams
-    desynchronize and every candidate gets independent noise instead of shared
-    noise. With a fixed draw count the comparison is properly paired, which is
-    the difference between a usable late-round ranking and coin flips.
+    Each player's draw is a pure function of (stream, sim, player id), so it
+    does NOT depend on how many players are in the roster or where he sits in
+    it. That is what makes marginal value properly paired: season_value on a
+    roster and on that same roster plus one candidate give every shared player
+    the identical injury history, and the difference isolates the candidate.
+
+    The previous version walked one shared RNG down the roster. It consumed a
+    fixed two draws per player, which keeps the streams aligned within a single
+    simulation - but an N-player roster consumes 2N draws per sim and an
+    (N+1)-player roster consumes 2N+2, so from the second simulation onward the
+    two calls were reading different parts of the stream. Only sim 1 of each
+    was ever paired. Measured on a nine-player roster at sims=60, that left a
+    standard deviation of 2.59 points on a single marginal value, against gaps
+    between late-round candidates that are routinely 1 to 5 points.
     """
     out: dict[str, tuple[int, int]] = {}
     for p in roster:
-        u_len = rng.random()
-        u_pos = rng.random()
+        u_len, u_pos = _two_uniforms(_pid_key(p.pid) ^ (stream * 0x9E3779B1) ^ (sim * 0x85EBCA6B))
         miss = FULL_SEASON_WEEKS - expected_games(p)
         n = int(miss) + (1 if u_len < (miss - int(miss)) else 0)
         if n <= 0:
@@ -969,9 +1035,10 @@ def season_value(roster: Sequence[Player], shape: LeagueShape, base: Baseline,
         return total
 
     rng = rng or random.Random(0)
+    stream = rng.getrandbits(64)      # one draw, independent of roster size
     acc = 0.0
-    for _ in range(sims):
-        out_ranges: dict[str, tuple[int, int]] = _sample_absences(roster, rng)
+    for sim in range(sims):
+        out_ranges: dict[str, tuple[int, int]] = _sample_absences(roster, stream, sim)
         for wk, wt in weights.items():
             present = []
             for p in roster:
@@ -1012,11 +1079,12 @@ def team_week_profile(roster: Sequence[Player], shape: LeagueShape, base: Baseli
     lineup is set on projections before the scores are revealed.
     """
     rng = random.Random(seed)
+    stream = rng.getrandbits(64)
     reg: list[float] = []
     post: list[float] = []
     sigmas = {p.pid: math.sqrt(math.log(1.0 + WEEKLY_CV.get(p.pos, 0.55) ** 2)) for p in roster}
-    for _ in range(sims):
-        out_ranges: dict[str, tuple[int, int]] = _sample_absences(roster, rng)
+    for sim in range(sims):
+        out_ranges: dict[str, tuple[int, int]] = _sample_absences(roster, stream, sim)
         for wk in range(1, FULL_SEASON_WEEKS):
             present = []
             for p in roster:
@@ -1069,9 +1137,10 @@ def season_split(roster: Sequence[Player], shape: LeagueShape, base: Baseline,
         return reg / max(1, len(reg_w)), po / max(1, len(po_w))
 
     rng = rng or random.Random(0)
+    stream = rng.getrandbits(64)
     reg = po = 0.0
-    for _ in range(sims):
-        out_ranges = _sample_absences(roster, rng)
+    for sim in range(sims):
+        out_ranges = _sample_absences(roster, stream, sim)
 
         def present(w: int) -> list[Player]:
             keep = []
@@ -1762,7 +1831,7 @@ def plan_ev(roster: Sequence[Player], cand: Player, pool: Sequence[Player],
         best = opts[0][1]
         plan.append(best)
         remaining = [q for q in remaining if q.pid != best.pid]
-    return total
+    return total, plan
 
 
 # =============================================================================
@@ -1941,24 +2010,61 @@ def decide(state: DraftState, pick_no: int, base: Baseline,
                     break
         for r in results:
             if r["player"].pid in head_ids:
-                r["plan_ev"] = plan_ev(roster, r["player"], pool, pick_no,
-                                       upcoming, state, base, room)
+                r["plan_ev"], r["plan_roster"] = plan_ev(
+                    roster, r["player"], pool, pick_no, upcoming, state, base, room)
         scored = [r for r in results if "plan_ev" in r]
         rest = [r for r in results if "plan_ev" not in r]
         scored.sort(key=lambda r: -r["plan_ev"])
         results = scored + rest
 
-    # Injury-sampled re-score of the shortlist, with COMMON RANDOM NUMBERS so
-    # the sampling noise cancels in the difference instead of adding to it.
+    # Injury-sampled re-score, with BOTH terms on the sampled scale.
+    #
+    # This used to be sampled_mv(candidate) + deterministic_e_next(follower),
+    # and those are not the same scale. A player filling a starting slot is
+    # worth full value deterministically and gets discounted by sampling; a
+    # pure backup is worth nearly nothing deterministically and gets inflated,
+    # because his whole value is the weeks he covers. Adding one of each pays
+    # the backup twice and the starter never. At pick 160 of draft
+    # 1400957080872951808 the kicker filling the last open starting slot scored
+    # 13.55 deterministic against 11.62 sampled while a backup quarterback
+    # scored 4.65 against 12.88 - an 8.2 point swing from nothing but the
+    # choice of scale. It took the backup; the kicker was gone by the last pick.
+    #
+    # Making both terms deterministic instead was tried and is just as wrong in
+    # the other direction: a byes-only model prices an empty single slot at
+    # about ninety points and a bench receiver at almost nothing, so it drafts
+    # tight ends in the third round. The scales have to match, and the sampled
+    # one is the objective, so the follower term is sampled too. It is capped
+    # at SAMPLED_NEXT_N followers and a reduced sim count because it costs a
+    # season_value per (candidate, follower) pair.
     if sims > 0 and len(results) > 1:
+        fol_sims = max(RANK_SIMS, sims // 4)
         base_sampled = season_value(roster, shape, base, sims=sims, rng=random.Random(seed))
+        fol_pool = [r["player"] for r in results[:SAMPLED_NEXT_N]]
         for r in results[:SHORTLIST_N]:
+            c = r["player"]
+            rc = roster + [c]
             r["ev_sampled"] = (
-                season_value(roster + [r["player"]], shape, base,
-                             sims=sims, rng=random.Random(seed))
-                - base_sampled + r["e_next"]
-            )
-        head = sorted(results[:SHORTLIST_N], key=lambda r: -r.get("ev_sampled", r["ev"]))
+                season_value(rc, shape, base, sims=sims, rng=random.Random(seed))
+                - base_sampled)
+            if not has_next:
+                continue          # nothing follows the final pick
+            base_c = season_value(rc, shape, base, sims=fol_sims, rng=random.Random(seed))
+            opts = sorted(
+                ((season_value(rc + [q], shape, base, sims=fol_sims,
+                               rng=random.Random(seed)) - base_c, q)
+                 for q in fol_pool if q.pid != c.pid),
+                key=lambda x: -x[0])
+            e_s, none_yet = 0.0, 1.0
+            for mv_q, q in opts:
+                s = surv.get(q.pid, 0.0)
+                e_s += mv_q * s * none_yet
+                none_yet *= (1.0 - s)
+            if opts:
+                e_s += none_yet * opts[-1][0]
+            r["ev_sampled"] += e_s
+        head = sorted(results[:SHORTLIST_N],
+                      key=lambda r: -r.get("ev_sampled", r["ev"]))
         results = head + results[SHORTLIST_N:]
 
     # Final arbiter: title probability, not points. Expected points is the

@@ -54,6 +54,6 @@ for pick,nheld in ((9,0),(16,1)):
     avail=[p for p in players.values() if p.pid not in st.taken and p.pos not in ("K","DEF")]
     avail.sort(key=lambda p:-p.vorp); pool=avail[:F.NEXT_POOL]
     up=[n for n in st.my_picks if n>pick]
-    rows=[(F.plan_ev(mine[:nheld],c,pool,pick,up,st,base,room),c) for c in pool[:10]]
+    rows=[(F.plan_ev(mine[:nheld],c,pool,pick,up,st,base,room)[0],c) for c in pool[:10]]
     rows.sort(key=lambda r:-r[0])
     print(f"  pick {pick}: NEW top-3 -> " + ", ".join(f"{c.name}" for _,c in rows[:3]))

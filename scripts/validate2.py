@@ -75,7 +75,7 @@ for pick,nheld in ((112,9),(129,10),(136,11)):
         for m,q in fol:
             s=surv.get(q.pid,0.0); e+=m*s*ny; ny*=(1-s)
         e+=ny*(fol[-1][0] if fol else 0)
-        rows.append((mv+e, F.plan_ev(roster,c,pool,pick,upcoming,st,base,room), mv, c))
+        rows.append((mv+e, F.plan_ev(roster,c,pool,pick,upcoming,st,base,room)[0], mv, c))
     print(f"\n===== PICK {pick} =====")
     print(f"  {'':4}{'player':24}{'mv':>7}{'OLD ev':>9}{'NEW plan_ev':>13}")
     print("  -- ranked by OLD two-ply ev (what v35 did) --")
