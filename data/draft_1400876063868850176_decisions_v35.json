@@ -1,0 +1,1544 @@
+{
+  "draft_id": "1400876063868850176",
+  "slot": 9,
+  "engine": "v35",
+  "picks": [
+    {
+      "pick_no": 9,
+      "round": 1,
+      "strategy": "LAST CALL",
+      "note": "87% chance he is gone before your next pick.",
+      "tiers_left": {
+        "WR": 18,
+        "RB": 6,
+        "TE": 1,
+        "QB": 1
+      },
+      "candidates": [
+        {
+          "id": "9488",
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "marginal_value": 162.54,
+          "expected_next": 178.83,
+          "ev": 341.37,
+          "survival": 0.122,
+          "title_odds": 9.8,
+          "title_se": 0.54
+        },
+        {
+          "id": "7547",
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "marginal_value": 158.84,
+          "expected_next": 178.52,
+          "ev": 337.36,
+          "survival": 0.175,
+          "title_odds": 9.07,
+          "title_se": 0.52
+        },
+        {
+          "id": "6786",
+          "name": "CeeDee Lamb",
+          "pos": "WR",
+          "marginal_value": 151.2,
+          "expected_next": 179.71,
+          "ev": 330.91,
+          "survival": 0.24,
+          "title_odds": 7.93,
+          "title_se": 0.49
+        },
+        {
+          "id": "7569",
+          "name": "Nico Collins",
+          "pos": "WR",
+          "marginal_value": 142.61,
+          "expected_next": 179.61,
+          "ev": 322.23,
+          "survival": 0.956,
+          "title_odds": 6.97,
+          "title_se": 0.46
+        },
+        {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "marginal_value": 140.5,
+          "expected_next": 179.84,
+          "ev": 320.34,
+          "survival": 0.404,
+          "title_odds": 6.7,
+          "title_se": 0.46
+        },
+        {
+          "id": "3198",
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "marginal_value": 134.72,
+          "expected_next": 180.92,
+          "ev": 315.63,
+          "survival": 0.8,
+          "title_odds": 5.9,
+          "title_se": 0.43
+        },
+        {
+          "id": "4866",
+          "name": "Saquon Barkley",
+          "pos": "RB",
+          "marginal_value": 133.65,
+          "expected_next": 180.93,
+          "ev": 314.58,
+          "survival": 0.584,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "6794",
+          "name": "Justin Jefferson",
+          "pos": "WR",
+          "marginal_value": 132.94,
+          "expected_next": 180.93,
+          "ev": 313.88,
+          "survival": 0.317,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357584
+    },
+    {
+      "pick_no": 16,
+      "round": 2,
+      "strategy": "WR TIER CLIFF",
+      "note": "Only 1 left at this tier and he likely will not last to your next pick.",
+      "tiers_left": {
+        "WR": 1,
+        "RB": 3,
+        "TE": 1,
+        "QB": 1
+      },
+      "candidates": [
+        {
+          "id": "7547",
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "marginal_value": 163.27,
+          "expected_next": 158.58,
+          "ev": 321.85,
+          "survival": 0.034,
+          "title_odds": 31.63,
+          "title_se": 0.85
+        },
+        {
+          "id": "7569",
+          "name": "Nico Collins",
+          "pos": "WR",
+          "marginal_value": 146.77,
+          "expected_next": 157.83,
+          "ev": 304.6,
+          "survival": 0.118,
+          "title_odds": 27.53,
+          "title_se": 0.82
+        },
+        {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "marginal_value": 145.83,
+          "expected_next": 157.95,
+          "ev": 303.78,
+          "survival": 0.088,
+          "title_odds": 28.27,
+          "title_se": 0.82
+        },
+        {
+          "id": "6794",
+          "name": "Justin Jefferson",
+          "pos": "WR",
+          "marginal_value": 136.93,
+          "expected_next": 159.43,
+          "ev": 296.36,
+          "survival": 0.042,
+          "title_odds": 25.37,
+          "title_se": 0.79
+        },
+        {
+          "id": "8112",
+          "name": "Drake London",
+          "pos": "WR",
+          "marginal_value": 135.47,
+          "expected_next": 159.37,
+          "ev": 294.83,
+          "survival": 0.053,
+          "title_odds": 25.3,
+          "title_se": 0.79
+        },
+        {
+          "id": "4866",
+          "name": "Saquon Barkley",
+          "pos": "RB",
+          "marginal_value": 136.85,
+          "expected_next": 158.07,
+          "ev": 294.92,
+          "survival": 0.132,
+          "title_odds": 26.27,
+          "title_se": 0.8
+        },
+        {
+          "id": "5859",
+          "name": "A.J. Brown",
+          "pos": "WR",
+          "marginal_value": 132.87,
+          "expected_next": 159.38,
+          "ev": 292.25,
+          "survival": 0.065,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "8137",
+          "name": "George Pickens",
+          "pos": "WR",
+          "marginal_value": 132.54,
+          "expected_next": 159.36,
+          "ev": 291.9,
+          "survival": 0.08,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357576
+    },
+    {
+      "pick_no": 33,
+      "round": 3,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (FLEX Starter).",
+      "tiers_left": {
+        "WR": 18,
+        "RB": 6,
+        "TE": 11,
+        "QB": 9
+      },
+      "candidates": [
+        {
+          "id": "8144",
+          "name": "Chris Olave",
+          "pos": "WR",
+          "marginal_value": 122.39,
+          "expected_next": 137.82,
+          "ev": 260.2,
+          "survival": 0.345,
+          "title_odds": 14.83,
+          "title_se": 0.65
+        },
+        {
+          "id": "10229",
+          "name": "Rashee Rice",
+          "pos": "WR",
+          "marginal_value": 117.54,
+          "expected_next": 140.24,
+          "ev": 257.78,
+          "survival": 0.294,
+          "title_odds": 14.13,
+          "title_se": 0.64
+        },
+        {
+          "id": "7525",
+          "name": "DeVonta Smith",
+          "pos": "WR",
+          "marginal_value": 116.96,
+          "expected_next": 140.14,
+          "ev": 257.1,
+          "survival": 0.398,
+          "title_odds": 14.1,
+          "title_se": 0.64
+        },
+        {
+          "id": "11635",
+          "name": "Ladd McConkey",
+          "pos": "WR",
+          "marginal_value": 116.09,
+          "expected_next": 140.08,
+          "ev": 256.17,
+          "survival": 0.663,
+          "title_odds": 14.03,
+          "title_se": 0.63
+        },
+        {
+          "id": "8146",
+          "name": "Garrett Wilson",
+          "pos": "WR",
+          "marginal_value": 112.86,
+          "expected_next": 140.43,
+          "ev": 253.3,
+          "survival": 0.614,
+          "title_odds": 13.47,
+          "title_se": 0.62
+        },
+        {
+          "id": "12526",
+          "name": "Tetairoa McMillan",
+          "pos": "WR",
+          "marginal_value": 112.04,
+          "expected_next": 140.46,
+          "ev": 252.5,
+          "survival": 0.508,
+          "title_odds": 13.4,
+          "title_se": 0.62
+        },
+        {
+          "id": "9997",
+          "name": "Zay Flowers",
+          "pos": "WR",
+          "marginal_value": 111.68,
+          "expected_next": 140.3,
+          "ev": 251.98,
+          "survival": 0.453,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "7526",
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "marginal_value": 109.83,
+          "expected_next": 140.46,
+          "ev": 250.29,
+          "survival": 0.786,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357593
+    },
+    {
+      "pick_no": 40,
+      "round": 4,
+      "strategy": "LAST CALL",
+      "note": "86% chance he is gone before your next pick.",
+      "tiers_left": {
+        "WR": 18,
+        "TE": 12,
+        "RB": 4,
+        "QB": 11
+      },
+      "candidates": [
+        {
+          "id": "7525",
+          "name": "DeVonta Smith",
+          "pos": "WR",
+          "marginal_value": 113.48,
+          "expected_next": 125.98,
+          "ev": 239.46,
+          "survival": 0.131,
+          "title_odds": 30.03,
+          "title_se": 0.84
+        },
+        {
+          "id": "11635",
+          "name": "Ladd McConkey",
+          "pos": "WR",
+          "marginal_value": 112.98,
+          "expected_next": 125.98,
+          "ev": 238.96,
+          "survival": 0.205,
+          "title_odds": 29.93,
+          "title_se": 0.84
+        },
+        {
+          "id": "8146",
+          "name": "Garrett Wilson",
+          "pos": "WR",
+          "marginal_value": 109.74,
+          "expected_next": 125.98,
+          "ev": 235.72,
+          "survival": 0.184,
+          "title_odds": 29.03,
+          "title_se": 0.83
+        },
+        {
+          "id": "9997",
+          "name": "Zay Flowers",
+          "pos": "WR",
+          "marginal_value": 108.83,
+          "expected_next": 125.98,
+          "ev": 234.81,
+          "survival": 0.147,
+          "title_odds": 29.0,
+          "title_se": 0.83
+        },
+        {
+          "id": "12526",
+          "name": "Tetairoa McMillan",
+          "pos": "WR",
+          "marginal_value": 109.03,
+          "expected_next": 125.98,
+          "ev": 235.01,
+          "survival": 0.165,
+          "title_odds": 28.8,
+          "title_se": 0.83
+        },
+        {
+          "id": "7543",
+          "name": "Travis Etienne",
+          "pos": "RB",
+          "marginal_value": 100.08,
+          "expected_next": 133.96,
+          "ev": 234.04,
+          "survival": 0.364,
+          "title_odds": 27.93,
+          "title_se": 0.82
+        },
+        {
+          "id": "6790",
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "marginal_value": 99.99,
+          "expected_next": 133.89,
+          "ev": 233.87,
+          "survival": 0.522,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "5892",
+          "name": "David Montgomery",
+          "pos": "RB",
+          "marginal_value": 98.75,
+          "expected_next": 133.92,
+          "ev": 232.66,
+          "survival": 0.646,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357628
+    },
+    {
+      "pick_no": 57,
+      "round": 5,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (QB1 Starter).",
+      "tiers_left": {
+        "WR": 18,
+        "TE": 15,
+        "RB": 11,
+        "QB": 11
+      },
+      "candidates": [
+        {
+          "id": "6904",
+          "name": "Jalen Hurts",
+          "pos": "QB",
+          "marginal_value": 86.2,
+          "expected_next": 88.67,
+          "ev": 174.87,
+          "survival": 0.85,
+          "title_odds": 15.83,
+          "title_se": 0.67
+        },
+        {
+          "id": "11566",
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "marginal_value": 84.84,
+          "expected_next": 88.67,
+          "ev": 173.51,
+          "survival": 0.865,
+          "title_odds": 15.47,
+          "title_se": 0.66
+        },
+        {
+          "id": "13286",
+          "name": "Jadarian Price",
+          "pos": "RB",
+          "marginal_value": 73.62,
+          "expected_next": 96.96,
+          "ev": 170.58,
+          "survival": 0.924,
+          "title_odds": 14.27,
+          "title_se": 0.64
+        },
+        {
+          "id": "7611",
+          "name": "Rhamondre Stevenson",
+          "pos": "RB",
+          "marginal_value": 72.79,
+          "expected_next": 96.96,
+          "ev": 169.76,
+          "survival": 0.94,
+          "title_odds": 14.0,
+          "title_se": 0.63
+        },
+        {
+          "id": "3294",
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "marginal_value": 80.69,
+          "expected_next": 88.67,
+          "ev": 169.37,
+          "survival": 0.879,
+          "title_odds": 15.23,
+          "title_se": 0.66
+        },
+        {
+          "id": "7523",
+          "name": "Trevor Lawrence",
+          "pos": "QB",
+          "marginal_value": 80.12,
+          "expected_next": 88.67,
+          "ev": 168.8,
+          "survival": 0.994,
+          "title_odds": 15.07,
+          "title_se": 0.65
+        },
+        {
+          "id": "8183",
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "marginal_value": 79.85,
+          "expected_next": 88.67,
+          "ev": 168.52,
+          "survival": 0.998,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "11560",
+          "name": "Caleb Williams",
+          "pos": "QB",
+          "marginal_value": 76.26,
+          "expected_next": 88.67,
+          "ev": 164.94,
+          "survival": 0.946,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357772
+    },
+    {
+      "pick_no": 64,
+      "round": 6,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (RB1 Starter).",
+      "tiers_left": {
+        "WR": 18,
+        "TE": 18,
+        "RB": 16,
+        "QB": 3
+      },
+      "candidates": [
+        {
+          "id": "13286",
+          "name": "Jadarian Price",
+          "pos": "RB",
+          "marginal_value": 72.1,
+          "expected_next": 79.33,
+          "ev": 151.43,
+          "survival": 0.536,
+          "title_odds": 24.03,
+          "title_se": 0.78
+        },
+        {
+          "id": "7021",
+          "name": "Rico Dowdle",
+          "pos": "RB",
+          "marginal_value": 64.74,
+          "expected_next": 84.03,
+          "ev": 148.77,
+          "survival": 0.787,
+          "title_odds": 22.67,
+          "title_se": 0.76
+        },
+        {
+          "id": "5967",
+          "name": "Tony Pollard",
+          "pos": "RB",
+          "marginal_value": 63.91,
+          "expected_next": 84.38,
+          "ev": 148.29,
+          "survival": 0.687,
+          "title_odds": 22.57,
+          "title_se": 0.76
+        },
+        {
+          "id": "6806",
+          "name": "J.K. Dobbins",
+          "pos": "RB",
+          "marginal_value": 63.92,
+          "expected_next": 84.28,
+          "ev": 148.2,
+          "survival": 0.944,
+          "title_odds": 22.57,
+          "title_se": 0.76
+        },
+        {
+          "id": "10859",
+          "name": "Sam LaPorta",
+          "pos": "TE",
+          "marginal_value": 61.06,
+          "expected_next": 84.39,
+          "ev": 145.45,
+          "survival": 0.709,
+          "title_odds": 21.97,
+          "title_se": 0.76
+        },
+        {
+          "id": "8408",
+          "name": "Jordan Mason",
+          "pos": "RB",
+          "marginal_value": 58.5,
+          "expected_next": 84.39,
+          "ev": 142.89,
+          "survival": 0.997,
+          "title_odds": 21.9,
+          "title_se": 0.76
+        },
+        {
+          "id": "9487",
+          "name": "Parker Washington",
+          "pos": "WR",
+          "marginal_value": 58.39,
+          "expected_next": 84.39,
+          "ev": 142.79,
+          "survival": 0.189,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "2216",
+          "name": "Mike Evans",
+          "pos": "WR",
+          "marginal_value": 57.99,
+          "expected_next": 84.39,
+          "ev": 142.38,
+          "survival": 0.134,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357702
+    },
+    {
+      "pick_no": 81,
+      "round": 7,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (TE1 Starter).",
+      "tiers_left": {
+        "WR": 18,
+        "TE": 1,
+        "QB": 3,
+        "RB": 16
+      },
+      "candidates": [
+        {
+          "id": "10859",
+          "name": "Sam LaPorta",
+          "pos": "TE",
+          "marginal_value": 58.16,
+          "expected_next": 73.09,
+          "ev": 131.24,
+          "survival": 0.695,
+          "title_odds": 15.73,
+          "title_se": 0.66
+        },
+        {
+          "id": "9487",
+          "name": "Parker Washington",
+          "pos": "WR",
+          "marginal_value": 53.81,
+          "expected_next": 74.79,
+          "ev": 128.61,
+          "survival": 0.467,
+          "title_odds": 14.6,
+          "title_se": 0.64
+        },
+        {
+          "id": "8408",
+          "name": "Jordan Mason",
+          "pos": "RB",
+          "marginal_value": 55.31,
+          "expected_next": 68.16,
+          "ev": 123.47,
+          "survival": 0.999,
+          "title_odds": 15.6,
+          "title_se": 0.66
+        },
+        {
+          "id": "11583",
+          "name": "Jonathon Brooks",
+          "pos": "RB",
+          "marginal_value": 54.18,
+          "expected_next": 68.16,
+          "ev": 122.34,
+          "survival": 0.988,
+          "title_odds": 15.37,
+          "title_se": 0.66
+        },
+        {
+          "id": "7567",
+          "name": "Kenny Gainwell",
+          "pos": "RB",
+          "marginal_value": 53.88,
+          "expected_next": 68.16,
+          "ev": 122.04,
+          "survival": 0.996,
+          "title_odds": 15.17,
+          "title_se": 0.65
+        },
+        {
+          "id": "11581",
+          "name": "MarShawn Lloyd",
+          "pos": "RB",
+          "marginal_value": 51.12,
+          "expected_next": 68.16,
+          "ev": 119.28,
+          "survival": 1.0,
+          "title_odds": 14.73,
+          "title_se": 0.65
+        },
+        {
+          "id": "10222",
+          "name": "Jayden Reed",
+          "pos": "WR",
+          "marginal_value": 43.95,
+          "expected_next": 74.79,
+          "ev": 118.74,
+          "survival": 0.9,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "11631",
+          "name": "Brian Thomas",
+          "pos": "WR",
+          "marginal_value": 42.89,
+          "expected_next": 74.79,
+          "ev": 117.68,
+          "survival": 0.571,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357777
+    },
+    {
+      "pick_no": 88,
+      "round": 8,
+      "strategy": "LAST CALL",
+      "note": "75% chance he is gone before your next pick.",
+      "tiers_left": {
+        "WR": 18,
+        "TE": 18,
+        "QB": 3,
+        "RB": 16
+      },
+      "candidates": [
+        {
+          "id": "10222",
+          "name": "Jayden Reed",
+          "pos": "WR",
+          "marginal_value": 47.48,
+          "expected_next": 72.73,
+          "ev": 120.21,
+          "survival": 0.249,
+          "title_odds": 19.33,
+          "title_se": 0.72
+        },
+        {
+          "id": "11631",
+          "name": "Brian Thomas",
+          "pos": "WR",
+          "marginal_value": 47.42,
+          "expected_next": 72.73,
+          "ev": 120.15,
+          "survival": 0.056,
+          "title_odds": 19.3,
+          "title_se": 0.72
+        },
+        {
+          "id": "11628",
+          "name": "Marvin Harrison",
+          "pos": "WR",
+          "marginal_value": 45.32,
+          "expected_next": 72.73,
+          "ev": 118.05,
+          "survival": 0.049,
+          "title_odds": 18.8,
+          "title_se": 0.71
+        },
+        {
+          "id": "8142",
+          "name": "Alec Pierce",
+          "pos": "WR",
+          "marginal_value": 39.51,
+          "expected_next": 72.73,
+          "ev": 112.24,
+          "survival": 0.064,
+          "title_odds": 17.87,
+          "title_se": 0.7
+        },
+        {
+          "id": "9500",
+          "name": "Josh Downs",
+          "pos": "WR",
+          "marginal_value": 36.83,
+          "expected_next": 72.73,
+          "ev": 109.56,
+          "survival": 0.202,
+          "title_odds": 17.57,
+          "title_se": 0.69
+        },
+        {
+          "id": "1466",
+          "name": "Travis Kelce",
+          "pos": "TE",
+          "marginal_value": 37.09,
+          "expected_next": 72.73,
+          "ev": 109.82,
+          "survival": 0.709,
+          "title_odds": 17.77,
+          "title_se": 0.7
+        },
+        {
+          "id": "4037",
+          "name": "Chris Godwin",
+          "pos": "WR",
+          "marginal_value": 36.73,
+          "expected_next": 72.73,
+          "ev": 109.46,
+          "survival": 0.074,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "9756",
+          "name": "Jordan Addison",
+          "pos": "WR",
+          "marginal_value": 36.33,
+          "expected_next": 72.73,
+          "ev": 109.06,
+          "survival": 0.181,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357868
+    },
+    {
+      "pick_no": 105,
+      "round": 9,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (TE2 Backup).",
+      "tiers_left": {
+        "TE": 18,
+        "QB": 3,
+        "RB": 3,
+        "WR": 18
+      },
+      "candidates": [
+        {
+          "id": "1466",
+          "name": "Travis Kelce",
+          "pos": "TE",
+          "marginal_value": 25.49,
+          "expected_next": 72.85,
+          "ev": 98.34,
+          "survival": 0.848,
+          "title_odds": 15.13,
+          "title_se": 0.65
+        },
+        {
+          "id": "4217",
+          "name": "George Kittle",
+          "pos": "TE",
+          "marginal_value": 22.59,
+          "expected_next": 72.85,
+          "ev": 95.44,
+          "survival": 0.78,
+          "title_odds": 14.93,
+          "title_se": 0.65
+        },
+        {
+          "id": "5012",
+          "name": "Mark Andrews",
+          "pos": "TE",
+          "marginal_value": 21.96,
+          "expected_next": 72.85,
+          "ev": 94.81,
+          "survival": 0.946,
+          "title_odds": 14.87,
+          "title_se": 0.65
+        },
+        {
+          "id": "9480",
+          "name": "Brenton Strange",
+          "pos": "TE",
+          "marginal_value": 21.6,
+          "expected_next": 72.85,
+          "ev": 94.46,
+          "survival": 0.993,
+          "title_odds": 14.83,
+          "title_se": 0.65
+        },
+        {
+          "id": "8110",
+          "name": "Jake Ferguson",
+          "pos": "TE",
+          "marginal_value": 20.96,
+          "expected_next": 72.85,
+          "ev": 93.81,
+          "survival": 0.914,
+          "title_odds": 14.83,
+          "title_se": 0.65
+        },
+        {
+          "id": "9500",
+          "name": "Josh Downs",
+          "pos": "WR",
+          "marginal_value": 20.51,
+          "expected_next": 72.85,
+          "ev": 93.36,
+          "survival": 0.716,
+          "title_odds": 14.73,
+          "title_se": 0.65
+        },
+        {
+          "id": "6819",
+          "name": "Michael Pittman",
+          "pos": "WR",
+          "marginal_value": 20.46,
+          "expected_next": 72.85,
+          "ev": 93.32,
+          "survival": 0.684,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "8126",
+          "name": "Wan'Dale Robinson",
+          "pos": "WR",
+          "marginal_value": 20.42,
+          "expected_next": 72.85,
+          "ev": 93.27,
+          "survival": 0.747,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357835
+    },
+    {
+      "pick_no": 112,
+      "round": 10,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (QB2 Backup).",
+      "tiers_left": {
+        "TE": 18,
+        "QB": 3,
+        "RB": 3,
+        "WR": 18
+      },
+      "candidates": [
+        {
+          "id": "8183",
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "marginal_value": 10.94,
+          "expected_next": 71.45,
+          "ev": 82.39,
+          "survival": 0.662,
+          "title_odds": 14.07,
+          "title_se": 0.63
+        },
+        {
+          "id": "9500",
+          "name": "Josh Downs",
+          "pos": "WR",
+          "marginal_value": 8.65,
+          "expected_next": 71.45,
+          "ev": 80.1,
+          "survival": 0.29,
+          "title_odds": 13.63,
+          "title_se": 0.63
+        },
+        {
+          "id": "4217",
+          "name": "George Kittle",
+          "pos": "TE",
+          "marginal_value": 8.38,
+          "expected_next": 71.45,
+          "ev": 79.83,
+          "survival": 0.626,
+          "title_odds": 13.53,
+          "title_se": 0.62
+        },
+        {
+          "id": "4046",
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "marginal_value": 8.51,
+          "expected_next": 71.45,
+          "ev": 79.96,
+          "survival": 0.682,
+          "title_odds": 13.6,
+          "title_se": 0.63
+        },
+        {
+          "id": "9480",
+          "name": "Brenton Strange",
+          "pos": "TE",
+          "marginal_value": 8.31,
+          "expected_next": 71.45,
+          "ev": 79.76,
+          "survival": 0.968,
+          "title_odds": 13.5,
+          "title_se": 0.62
+        },
+        {
+          "id": "11646",
+          "name": "Jalen Coker",
+          "pos": "WR",
+          "marginal_value": 8.31,
+          "expected_next": 71.45,
+          "ev": 79.76,
+          "survival": 0.615,
+          "title_odds": 13.5,
+          "title_se": 0.62
+        },
+        {
+          "id": "8134",
+          "name": "Khalil Shakir",
+          "pos": "WR",
+          "marginal_value": 8.28,
+          "expected_next": 71.45,
+          "ev": 79.73,
+          "survival": 0.522,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "9754",
+          "name": "Quentin Johnston",
+          "pos": "WR",
+          "marginal_value": 8.06,
+          "expected_next": 71.45,
+          "ev": 79.51,
+          "survival": 0.341,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357874
+    },
+    {
+      "pick_no": 129,
+      "round": 11,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (Bench/Upside).",
+      "tiers_left": {
+        "RB": 2,
+        "WR": 18,
+        "TE": 18
+      },
+      "candidates": [
+        {
+          "id": "8134",
+          "name": "Khalil Shakir",
+          "pos": "WR",
+          "marginal_value": 6.25,
+          "expected_next": 71.43,
+          "ev": 77.68,
+          "survival": 0.763,
+          "title_odds": 11.8,
+          "title_se": 0.59
+        },
+        {
+          "id": "13294",
+          "name": "Makai Lemon",
+          "pos": "WR",
+          "marginal_value": 6.14,
+          "expected_next": 71.43,
+          "ev": 77.57,
+          "survival": 0.68,
+          "title_odds": 11.77,
+          "title_se": 0.59
+        },
+        {
+          "id": "11646",
+          "name": "Jalen Coker",
+          "pos": "WR",
+          "marginal_value": 5.89,
+          "expected_next": 71.43,
+          "ev": 77.32,
+          "survival": 0.814,
+          "title_odds": 11.7,
+          "title_se": 0.59
+        },
+        {
+          "id": "11624",
+          "name": "Xavier Worthy",
+          "pos": "WR",
+          "marginal_value": 5.24,
+          "expected_next": 71.43,
+          "ev": 76.67,
+          "survival": 0.754,
+          "title_odds": 11.73,
+          "title_se": 0.59
+        },
+        {
+          "id": "2449",
+          "name": "Stefon Diggs",
+          "pos": "WR",
+          "marginal_value": 5.07,
+          "expected_next": 71.43,
+          "ev": 76.5,
+          "survival": 0.669,
+          "title_odds": 11.67,
+          "title_se": 0.59
+        },
+        {
+          "id": "8131",
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "marginal_value": 5.28,
+          "expected_next": 71.43,
+          "ev": 76.71,
+          "survival": 0.867,
+          "title_odds": 11.7,
+          "title_se": 0.59
+        },
+        {
+          "id": "12501",
+          "name": "Matthew Golden",
+          "pos": "WR",
+          "marginal_value": 4.78,
+          "expected_next": 71.43,
+          "ev": 76.21,
+          "survival": 0.703,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "5872",
+          "name": "Deebo Samuel",
+          "pos": "WR",
+          "marginal_value": 4.33,
+          "expected_next": 71.43,
+          "ev": 75.76,
+          "survival": 0.745,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788358077
+    },
+    {
+      "pick_no": 136,
+      "round": 12,
+      "strategy": "FILL STARTERS",
+      "note": "Best marginal points that still fills a starting slot (Bench/Upside).",
+      "tiers_left": {
+        "RB": 2,
+        "WR": 18,
+        "TE": 18
+      },
+      "candidates": [
+        {
+          "id": "13294",
+          "name": "Makai Lemon",
+          "pos": "WR",
+          "marginal_value": 1.8,
+          "expected_next": 66.58,
+          "ev": 68.38,
+          "survival": 0.311,
+          "title_odds": 11.4,
+          "title_se": 0.58
+        },
+        {
+          "id": "11571",
+          "name": "Isaiah Davis",
+          "pos": "RB",
+          "marginal_value": -22.52,
+          "expected_next": 90.9,
+          "ev": 68.37,
+          "survival": 1.0,
+          "title_odds": 9.43,
+          "title_se": 0.53
+        },
+        {
+          "id": "11646",
+          "name": "Jalen Coker",
+          "pos": "WR",
+          "marginal_value": 1.78,
+          "expected_next": 66.58,
+          "ev": 68.36,
+          "survival": 0.514,
+          "title_odds": 11.4,
+          "title_se": 0.58
+        },
+        {
+          "id": "5844",
+          "name": "T.J. Hockenson",
+          "pos": "TE",
+          "marginal_value": 1.79,
+          "expected_next": 66.58,
+          "ev": 68.37,
+          "survival": 0.967,
+          "title_odds": 11.47,
+          "title_se": 0.58
+        },
+        {
+          "id": "11624",
+          "name": "Xavier Worthy",
+          "pos": "WR",
+          "marginal_value": 1.53,
+          "expected_next": 66.58,
+          "ev": 68.11,
+          "survival": 0.412,
+          "title_odds": 11.43,
+          "title_se": 0.58
+        },
+        {
+          "id": "12501",
+          "name": "Matthew Golden",
+          "pos": "WR",
+          "marginal_value": 1.26,
+          "expected_next": 66.58,
+          "ev": 67.84,
+          "survival": 0.364,
+          "title_odds": 11.4,
+          "title_se": 0.58
+        },
+        {
+          "id": "5872",
+          "name": "Deebo Samuel",
+          "pos": "WR",
+          "marginal_value": 1.14,
+          "expected_next": 66.58,
+          "ev": 67.72,
+          "survival": 0.4,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "8210",
+          "name": "Chig Okonkwo",
+          "pos": "TE",
+          "marginal_value": 1.06,
+          "expected_next": 66.58,
+          "ev": 67.64,
+          "survival": 0.989,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788357970
+    },
+    {
+      "pick_no": 153,
+      "round": 13,
+      "strategy": "ROSTER LOCK",
+      "note": "Take RB/K/DEF now or the lineup cannot be filled.",
+      "tiers_left": {
+        "DEF": 18,
+        "K": 18,
+        "RB": 2
+      },
+      "candidates": [
+        {
+          "id": "11583",
+          "name": "Jonathon Brooks",
+          "pos": "RB",
+          "marginal_value": 52.86,
+          "expected_next": 14.87,
+          "ev": 67.73,
+          "survival": 0.723,
+          "title_odds": 16.63,
+          "title_se": 0.68
+        },
+        {
+          "id": "DEN",
+          "name": "DEN Defense",
+          "pos": "DEF",
+          "marginal_value": 11.04,
+          "expected_next": 56.08,
+          "ev": 67.12,
+          "survival": 0.808,
+          "title_odds": 11.2,
+          "title_se": 0.58
+        },
+        {
+          "id": "BAL",
+          "name": "BAL Defense",
+          "pos": "DEF",
+          "marginal_value": 10.02,
+          "expected_next": 56.08,
+          "ev": 66.09,
+          "survival": 0.841,
+          "title_odds": 11.23,
+          "title_se": 0.58
+        },
+        {
+          "id": "11581",
+          "name": "MarShawn Lloyd",
+          "pos": "RB",
+          "marginal_value": 50.48,
+          "expected_next": 14.87,
+          "ev": 65.34,
+          "survival": 0.929,
+          "title_odds": 16.03,
+          "title_se": 0.67
+        },
+        {
+          "id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "pos": "K",
+          "marginal_value": 7.94,
+          "expected_next": 56.94,
+          "ev": 64.88,
+          "survival": 0.823,
+          "title_odds": 11.03,
+          "title_se": 0.57
+        },
+        {
+          "id": "11786",
+          "name": "Cam Little",
+          "pos": "K",
+          "marginal_value": 6.93,
+          "expected_next": 56.94,
+          "ev": 63.86,
+          "survival": 0.836,
+          "title_odds": 10.9,
+          "title_se": 0.57
+        },
+        {
+          "id": "NE",
+          "name": "NE Defense",
+          "pos": "DEF",
+          "marginal_value": 6.93,
+          "expected_next": 56.08,
+          "ev": 63.0,
+          "survival": 0.847,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "DET",
+          "name": "DET Defense",
+          "pos": "DEF",
+          "marginal_value": 6.93,
+          "expected_next": 56.08,
+          "ev": 63.0,
+          "survival": 0.908,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788358020
+    },
+    {
+      "pick_no": 160,
+      "round": 14,
+      "strategy": "ROSTER LOCK",
+      "note": "Take K/DEF now or the lineup cannot be filled.",
+      "tiers_left": {
+        "K": 18,
+        "DEF": 18
+      },
+      "candidates": [
+        {
+          "id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "pos": "K",
+          "marginal_value": 9.83,
+          "expected_next": 10.66,
+          "ev": 20.49,
+          "survival": 0.415,
+          "title_odds": 17.47,
+          "title_se": 0.69
+        },
+        {
+          "id": "11786",
+          "name": "Cam Little",
+          "pos": "K",
+          "marginal_value": 8.81,
+          "expected_next": 10.66,
+          "ev": 19.47,
+          "survival": 0.441,
+          "title_odds": 17.67,
+          "title_se": 0.7
+        },
+        {
+          "id": "NE",
+          "name": "NE Defense",
+          "pos": "DEF",
+          "marginal_value": 8.83,
+          "expected_next": 10.07,
+          "ev": 18.91,
+          "survival": 0.559,
+          "title_odds": 17.63,
+          "title_se": 0.7
+        },
+        {
+          "id": "DET",
+          "name": "DET Defense",
+          "pos": "DEF",
+          "marginal_value": 8.83,
+          "expected_next": 10.07,
+          "ev": 18.91,
+          "survival": 0.676,
+          "title_odds": 17.63,
+          "title_se": 0.7
+        },
+        {
+          "id": "MIN",
+          "name": "MIN Defense",
+          "pos": "DEF",
+          "marginal_value": 8.83,
+          "expected_next": 10.07,
+          "ev": 18.91,
+          "survival": 0.665,
+          "title_odds": 17.63,
+          "title_se": 0.7
+        },
+        {
+          "id": "JAX",
+          "name": "JAC Defense",
+          "pos": "DEF",
+          "marginal_value": 7.8,
+          "expected_next": 10.07,
+          "ev": 17.88,
+          "survival": 0.686,
+          "title_odds": 17.43,
+          "title_se": 0.69
+        },
+        {
+          "id": "11792",
+          "name": "Will Reichard",
+          "pos": "K",
+          "marginal_value": 5.76,
+          "expected_next": 10.66,
+          "ev": 16.42,
+          "survival": 0.799,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "PIT",
+          "name": "PIT Defense",
+          "pos": "DEF",
+          "marginal_value": 4.71,
+          "expected_next": 10.08,
+          "ev": 14.79,
+          "survival": 0.641,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788358053
+    },
+    {
+      "pick_no": 177,
+      "round": 15,
+      "strategy": "ROSTER LOCK",
+      "note": "Take DEF now or the lineup cannot be filled.",
+      "tiers_left": {
+        "DEF": 18
+      },
+      "candidates": [
+        {
+          "id": "ARI",
+          "name": "ARI Defense",
+          "pos": "DEF",
+          "marginal_value": -15.73,
+          "expected_next": 22.98,
+          "ev": 7.25,
+          "survival": 1.0,
+          "title_odds": 15.03,
+          "title_se": 0.65
+        },
+        {
+          "id": "TEN",
+          "name": "TEN Defense",
+          "pos": "DEF",
+          "marginal_value": -14.7,
+          "expected_next": 21.89,
+          "ev": 7.19,
+          "survival": 1.0,
+          "title_odds": 15.13,
+          "title_se": 0.65
+        },
+        {
+          "id": "CLE",
+          "name": "CLE Defense",
+          "pos": "DEF",
+          "marginal_value": -7.48,
+          "expected_next": 14.23,
+          "ev": 6.75,
+          "survival": 1.0,
+          "title_odds": 16.03,
+          "title_se": 0.67
+        },
+        {
+          "id": "WAS",
+          "name": "WAS Defense",
+          "pos": "DEF",
+          "marginal_value": -6.44,
+          "expected_next": 13.13,
+          "ev": 6.69,
+          "survival": 1.0,
+          "title_odds": 16.27,
+          "title_se": 0.67
+        },
+        {
+          "id": "NO",
+          "name": "NO Defense",
+          "pos": "DEF",
+          "marginal_value": -4.38,
+          "expected_next": 10.94,
+          "ev": 6.56,
+          "survival": 1.0,
+          "title_odds": 16.47,
+          "title_se": 0.68
+        },
+        {
+          "id": "CIN",
+          "name": "CIN Defense",
+          "pos": "DEF",
+          "marginal_value": -2.32,
+          "expected_next": 8.76,
+          "ev": 6.44,
+          "survival": 1.0,
+          "title_odds": 16.37,
+          "title_se": 0.68
+        },
+        {
+          "id": "TB",
+          "name": "TB Defense",
+          "pos": "DEF",
+          "marginal_value": -0.25,
+          "expected_next": 6.57,
+          "ev": 6.32,
+          "survival": 1.0,
+          "title_odds": null,
+          "title_se": null
+        },
+        {
+          "id": "CAR",
+          "name": "CAR Defense",
+          "pos": "DEF",
+          "marginal_value": -0.25,
+          "expected_next": 6.57,
+          "ev": 6.32,
+          "survival": 1.0,
+          "title_odds": null,
+          "title_se": null
+        }
+      ],
+      "logged_at": 1788358086
+    }
+  ]
+}

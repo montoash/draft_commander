@@ -1,0 +1,157 @@
+--- engine.py	2026-09-02 14:16:07.725861479 +0000
++++ fixed.py	2026-09-02 14:24:57.931450550 +0000
+@@ -125,6 +125,8 @@
+ CAND_POOL = 55           # candidates given a full marginal-value evaluation
+ CAND_PER_POS = 18        # cap per position inside that pool
+ NEXT_POOL = 32           # follow-on candidates in the two-ply expectation
++ROLLOUT_DEPTH = 4        # future picks planned out before the horizon is cut
++ROLLOUT_K = 14           # candidates given the full multi-pick rollout
+ RANK_SIMS = 60           # injury-sampled ranking pass, common random numbers
+ SHORTLIST_SIMS = 260     # deeper re-score of the top few
+ SHORTLIST_N = 6
+@@ -765,9 +767,19 @@
+             continue
+         i = min(len(vals) - 1, max(0, idx.get(pos, len(vals)) - 1))
+         repl[pos] = vals[i]
++        # Expected BEST of the undrafted pool you actually get a shot at, which
++        # is what STREAM_POOL/STREAM_CLAIM_ODDS were always meant to express.
++        # The old code took one player at the draft cutoff and then clamped at
++        # 0.55 * replacement -- and for RB and WR the clamp always bound, so a
++        # hardcoded constant, not the board, was pricing every empty skill slot.
+         j = min(len(vals) - 1, max(0, drafted_count.get(pos, i)))
+-        raw = vals[j] * STREAM_HAIRCUT.get(pos, 0.92)
+-        stream[pos] = max(raw, STREAM_FLOOR_FRAC * repl[pos])
++        pool = vals[j:j + STREAM_POOL.get(pos, 12)]
++        if pool:
++            k = max(1, int(round(len(pool) * STREAM_CLAIM_ODDS)))
++            raw = sum(pool[:k]) / k * STREAM_HAIRCUT.get(pos, 0.92)
++        else:
++            raw = vals[j] * STREAM_HAIRCUT.get(pos, 0.92)
++        stream[pos] = min(raw, repl[pos])
+ 
+     base = Baseline(
+         repl=repl,
+@@ -1633,6 +1645,59 @@
+     return out
+ 
+ 
++def plan_ev(roster: Sequence[Player], cand: Player, pool: Sequence[Player],
++            pick_no: int, upcoming: Sequence[int], state: "DraftState",
++            base: Baseline, room: "RoomModel") -> float:
++    """Expected added value of taking `cand` now AND drafting on for real.
++
++    The two-ply form - MV(c) + E[best single follow-on | c] - compares plans of
++    two picks when the draft has many left, and that truncation has a
++    direction: the candidate who fills your biggest hole is the only one whose
++    option term collapses, because after taking him nothing else is worth much.
++    Every other candidate keeps crediting itself with the hole-filler it did
++    not take. The engine can therefore defer the same need forever, re-promising
++    the same points at every pick, and only pay up when legality forces it.
++    That is exactly what happened at picks 88 through 136 of draft
++    1400876063868850176: e_next sat at ~72 for five consecutive picks while the
++    RB2 slot stayed empty and the picks went QB2, WR6, WR7.
++
++    Rolling the plan forward over several picks removes the asymmetry: both
++    orderings acquire both players, so the comparison reduces to who is
++    likelier to be gone - which is what survival is for.
++    """
++    shape = state.shape
++    plan = list(roster) + [cand]
++    base_val = season_value(roster, shape, base, sims=0)
++    total = season_value(plan, shape, base, sims=0) - base_val
++    remaining = [q for q in pool if q.pid != cand.pid]
++
++    for n in list(upcoming)[:ROLLOUT_DEPTH]:
++        if not remaining:
++            break
++        surv_n = survival_probs(remaining, pick_no, n, state, room=room)
++        cur = season_value(plan, shape, base, sims=0)
++        opts = sorted(((season_value(plan + [q], shape, base, sims=0) - cur, q)
++                       for q in remaining), key=lambda x: -x[0])
++        if not opts:
++            break
++        # EXPECTED MAX, not max-of-discounted-value. Booking raw * S and then
++        # assuming possession is the same mistake in miniature: it credits the
++        # best player to whichever plan leaves him on the board and never pays
++        # for the branch where he is gone, so a plan is rewarded for deferring
++        # the scarcest player. The closed form below prices the fallback.
++        gain, none_yet = 0.0, 1.0
++        for raw, q in opts:
++            s = surv_n.get(q.pid, 0.0)
++            gain += raw * s * none_yet
++            none_yet *= (1.0 - s)
++        gain += none_yet * opts[-1][0]
++        total += gain
++        best = opts[0][1]
++        plan.append(best)
++        remaining = [q for q in remaining if q.pid != best.pid]
++    return total
++
++
+ # =============================================================================
+ # THE DECISION
+ # =============================================================================
+@@ -1667,6 +1732,7 @@
+     picks_left = len([n for n in picks if n >= pick_no])
+     upcoming = [n for n in picks if n > pick_no]
+     my_next = upcoming[0] if upcoming else pick_no
++    has_next = bool(upcoming)
+     rnd = (pick_no - 1) // shape.teams + 1
+ 
+     roster = [players[pid] for pid in state.slot_rosters.get(state.my_slot, []) if pid in players]
+@@ -1762,13 +1828,20 @@
+             followers.append((season_value(roster_c + [q], shape, base, sims=0) - val_c, q))
+         followers.sort(key=lambda x: -x[0])
+ 
+-        e_next = 0.0
+-        none_yet = 1.0
+-        for mv_q, q in followers:
+-            s = surv.get(q.pid, 0.0)
+-            e_next += mv_q * s * none_yet
+-            none_yet *= (1.0 - s)
+-        e_next += none_yet * (followers[-1][0] if followers else 0.0)
++        # On the LAST pick there is no next pick, so there is no option value.
++        # survival_probs() returns 1.0 for everyone when my_next <= pick_no + 1,
++        # which made e_next reward leaving the biggest hole -- at pick 177 that
++        # is why the worst defense on the board outranked the best one.
++        if not has_next:
++            e_next = 0.0
++        else:
++            e_next = 0.0
++            none_yet = 1.0
++            for mv_q, q in followers:
++                s = surv.get(q.pid, 0.0)
++                e_next += mv_q * s * none_yet
++                none_yet *= (1.0 - s)
++            e_next += none_yet * (followers[-1][0] if followers else 0.0)
+ 
+         results.append({
+             "player": c, "mv": mv_c, "e_next": e_next, "ev": mv_c + e_next,
+@@ -1778,6 +1851,27 @@
+ 
+     results.sort(key=lambda r: -r["ev"])
+ 
++    # Full-horizon re-rank. The shortlist is drawn by MARGINAL VALUE, not by the
++    # two-ply ev, because the two-ply ev is the thing being corrected: at pick
++    # 136 it ranked a 54.6-point running back below a 1.8-point wide receiver,
++    # so any shortlist drawn from it would never have contained the right pick.
++    if has_next and len(results) > 1:
++        pool = [r["player"] for r in sorted(results, key=lambda r: -r["mv"])[:NEXT_POOL]]
++        head_ids = {p.pid for p in pool[:ROLLOUT_K]}
++        for pos in ("QB", "RB", "WR", "TE", "K", "DEF"):     # keep one of each
++            for r in sorted(results, key=lambda r: -r["mv"]):
++                if r["player"].pos == pos:
++                    head_ids.add(r["player"].pid)
++                    break
++        for r in results:
++            if r["player"].pid in head_ids:
++                r["plan_ev"] = plan_ev(roster, r["player"], pool, pick_no,
++                                       upcoming, state, base, room)
++        scored = [r for r in results if "plan_ev" in r]
++        rest = [r for r in results if "plan_ev" not in r]
++        scored.sort(key=lambda r: -r["plan_ev"])
++        results = scored + rest
++
+     # Injury-sampled re-score of the shortlist, with COMMON RANDOM NUMBERS so
+     # the sampling noise cancels in the difference instead of adding to it.
+     if sims > 0 and len(results) > 1:
