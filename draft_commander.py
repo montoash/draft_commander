@@ -2778,8 +2778,12 @@ def log_decision(state: DraftState, pick_no: int, out: dict) -> None:
         # opponents picked in. Replaying a pick exactly is the only way to test
         # a proposed change to the ranking against a real draft.
         "board": [
+            # bye and injury are what give a backup its value: without them a
+            # replay scores every QB2 and TE2 at exactly zero, which is the one
+            # trade-off the endgame actually turns on.
             {"id": p.pid, "name": p.name, "pos": p.pos, "adp": round(p.adp, 1),
-             "proj": round(p.proj_adj, 1)}
+             "proj": round(p.proj_adj, 1), "bye": int(p.bye or 0),
+             "injury": p.injury or ""}
             for p in sorted((x for x in state.players.values()
                              if x.pid not in state.taken),
                             key=lambda x: -x.vorp)[:BOARD_LOG_N]
