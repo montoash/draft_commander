@@ -1,9 +1,27 @@
 """
-Draft Commander v36 - single-objective draft engine for Sleeper snake drafts.
+Draft Commander v37 - single-objective draft engine for Sleeper snake drafts.
 
 Tuned for:
     10 teams | 1.0 PPR | 1QB / 2RB / 2WR / 1TE / 2FLEX / 1K / 1DST / 5BN
     15 rounds | 6 of 10 teams make the playoffs | playoffs weeks 15-17
+
+WHAT CHANGED FROM v36
+----------------------
+K and DST were invisible to the candidate pool until round 13. Measured across
+six drafts, the autopsy named a defense as the best alternative at picks 129 or
+136 in EVERY ONE of them, for about 52 points in total, while the quota made
+that defense literally unpickable. In draft 1400949851704836096 the defense in
+question - LAR, the best on the board by eight projected points - was gone one
+pick later, so the deferral was not free. Marginal value already keeps K/DST
+out of the early rounds on its own (a good defense is worth about 25 points
+where a round-3 receiver is worth 130), so the gate now opens at round 11.
+Note this makes the right player available to the ranking; it does not by
+itself make the ranking take him - see KNOWN GAP below.
+
+Also: the fitted opponent model (tau, need_gamma, fit quality) is now written
+into the decision log. In these rooms it fits to tau=34 with need_gamma=0,
+which switches the roster-need term off completely, and not knowing that made
+every survival number in the log ambiguous.
 
 WHAT CHANGED FROM v35
 ----------------------
@@ -137,7 +155,7 @@ BASE = "https://api.sleeper.app/v1"
 FFC = "https://fantasyfootballcalculator.com/api/v1/adp"
 FANTASYCALC = "https://api.fantasycalc.com/values/current"
 
-ENGINE_VERSION = "v36"
+ENGINE_VERSION = "v37"
 POLL_SECONDS = 2.0
 TOP_N = 3
 
@@ -174,6 +192,18 @@ INJURY_GAMES_MULT = {
 }
 # Week-to-week scoring dispersion, as a coefficient of variation.
 WEEKLY_CV = {"QB": 0.34, "RB": 0.56, "WR": 0.62, "TE": 0.60, "K": 0.44, "DEF": 0.66}
+
+# KNOWN GAP - the two-ply option term still favours deferring a need.
+# EV(c) = MV(c) + e_next(c), and e_next is near-identical for every candidate
+# who leaves a hole open while collapsing for the one who fills it. At pick 129
+# of draft 1400949851704836096, with the round-11 gate open, LAR Defense scores
+# marginal value 23.81 against 19.54 for the tight end actually taken and 11.81
+# for a backup quarterback - and plan_ev puts all three inside 0.3 points of
+# each other, because the defense's e_next drops to 13.53 while everyone else
+# keeps 26.44. The gate fix makes the defense visible; this is why it may still
+# not be chosen. Do not paper over it with a positional bonus - the fix is to
+# make the continuation term price the same roster on both sides of the
+# comparison, and it needs replay evidence from several drafts before it ships.
 
 # KNOWN GAP - season-long projection uncertainty.
 # Projections are point estimates and the estimate is far shakier for a
@@ -1790,7 +1820,16 @@ def decide(state: DraftState, pick_no: int, base: Baseline,
     for pos in ("QB", "RB", "WR", "TE", "K", "DEF"):
         have, need = counts.get(pos, 0), shape.slots.get(pos, 0)
         if pos in LATE_ONLY:
-            eligible = forced or rnd >= shape.rounds - 2
+            # The gate used to open at rounds-2, and it was costing points in
+            # every draft measured: the autopsy kept naming a defense as the
+            # best alternative at picks 129 and 136 while the quota made that
+            # defense literally unpickable. Across six drafts that was ~52
+            # points, and it appeared in all six. Marginal value already stops
+            # a defense going early on its own - a good DST is worth about 25
+            # points where a round-3 receiver is worth 130 - so the gate only
+            # needs to keep K/DST out of the rounds where the crossover cannot
+            # happen, not out of the rounds where it does.
+            eligible = forced or rnd >= shape.rounds - 4
             quota[pos] = 5 if (eligible and have < need) else 0
         elif single_slot(pos, shape):
             # one backup is real bye and injury cover; a second can only ever
@@ -2421,7 +2460,7 @@ def slot_decay(state: DraftState) -> list[dict[str, Any]]:
     ordered = list(state.picks)
     my_picks = [i + 1 for i, pk in enumerate(ordered)
                 if int(pk.get("draft_slot") or 0) == state.my_slot]
-    eligible_from = shape.rounds - 2          # the LATE_ONLY quota gate in decide()
+    eligible_from = shape.rounds - 4          # the LATE_ONLY quota gate in decide()
     out: list[dict[str, Any]] = []
     for pos in sorted(LATE_ONLY):
         need = int(shape.slots.get(pos, 0))
@@ -2771,6 +2810,17 @@ def log_decision(state: DraftState, pick_no: int, out: dict) -> None:
         "pick_no": pick_no, "round": out["round"],
         "strategy": out["strategy"], "note": out["note"],
         "tiers_left": out["tiers"],
+        # The opponent model actually in force. Reconstructing it after the
+        # fact took rebuilding the draft order from board diffs and refitting,
+        # and the answer mattered: a room fitted at tau=34, need_gamma=0 has
+        # switched the need term off entirely, which changes what every
+        # survival number means.
+        "room": {"tau": round(out["room"].tau, 2),
+                 "need_gamma": out["room"].need_gamma,
+                 "shift": round(out["room"].shift, 2),
+                 "n_obs": out["room"].n_obs,
+                 "fit_quality": round(out["room"].fit_quality, 4),
+                 "descriptor": out["room"].descriptor},
         # The available board at this pick. Without it a post-hoc analysis has to
         # reconstruct who was on the board from the final rosters, and that
         # reconstruction is not faithful enough to re-adjudicate a decision:
