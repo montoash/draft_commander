@@ -137,6 +137,7 @@ BASE = "https://api.sleeper.app/v1"
 FFC = "https://fantasyfootballcalculator.com/api/v1/adp"
 FANTASYCALC = "https://api.fantasycalc.com/values/current"
 
+ENGINE_VERSION = "v36"
 POLL_SECONDS = 2.0
 TOP_N = 3
 
@@ -152,6 +153,7 @@ SHORTLIST_N = 6
 AUDIT_SIMS = 150         # injury sims behind every autopsy number
 POST_DRAFT_TEAM_SIMS = 200
 SEASON_SIMS = 4000
+BOARD_LOG_N = 220        # players of the live board written into the decision log
 
 # --- league calendar ---------------------------------------------------------
 FULL_SEASON_WEEKS = 18
@@ -2501,7 +2503,7 @@ def build_roster_json(state: DraftState, base: Baseline) -> dict:
             "players": detail,
         })
     return {
-        "engine": "v35", "draft_id": state.draft_id, "season": SEASON,
+        "engine": ENGINE_VERSION, "draft_id": state.draft_id, "season": SEASON,
         "teams": shape.teams, "rounds": shape.rounds,
         "scoring": f"{shape.ppr} PPR" + (" + Superflex" if shape.superflex else ""),
         "playoff_teams": shape.playoff_teams, "playoff_start": shape.playoff_start,
@@ -2544,7 +2546,7 @@ def analyze_and_report(state: DraftState, base: Baseline) -> None:
     try:
         with open(autopsy_path, "w", encoding="utf-8") as f:
             json.dump({
-                "engine": "v35", "draft_id": state.draft_id, "slot": state.my_slot,
+                "engine": ENGINE_VERSION, "draft_id": state.draft_id, "slot": state.my_slot,
                 "points_left_on_board": round(sum(a.points_left for a in audits), 1),
                 "picks": [a.__dict__ for a in audits],
                 "construction_notes": notes,
@@ -2659,7 +2661,7 @@ def decision_log_path(draft_id: str) -> str:
 
 def log_decision(state: DraftState, pick_no: int, out: dict) -> None:
     path = decision_log_path(state.draft_id)
-    data = {"draft_id": state.draft_id, "slot": state.my_slot, "engine": "v35", "picks": []}
+    data = {"draft_id": state.draft_id, "slot": state.my_slot, "engine": ENGINE_VERSION, "picks": []}
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -2671,6 +2673,19 @@ def log_decision(state: DraftState, pick_no: int, out: dict) -> None:
         "pick_no": pick_no, "round": out["round"],
         "strategy": out["strategy"], "note": out["note"],
         "tiers_left": out["tiers"],
+        # The available board at this pick. Without it a post-hoc analysis has to
+        # reconstruct who was on the board from the final rosters, and that
+        # reconstruction is not faithful enough to re-adjudicate a decision:
+        # it cannot see undrafted players at all, and it has to guess the order
+        # opponents picked in. Replaying a pick exactly is the only way to test
+        # a proposed change to the ranking against a real draft.
+        "board": [
+            {"id": p.pid, "name": p.name, "pos": p.pos, "adp": round(p.adp, 1),
+             "proj": round(p.proj_adj, 1)}
+            for p in sorted((x for x in state.players.values()
+                             if x.pid not in state.taken),
+                            key=lambda x: -x.vorp)[:BOARD_LOG_N]
+        ],
         "candidates": [
             {"id": r["player"].pid, "name": r["player"].name, "pos": r["player"].pos,
              "marginal_value": round(r["mv"], 2), "expected_next": round(r["e_next"], 2),
