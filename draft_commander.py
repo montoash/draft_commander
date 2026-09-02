@@ -2382,6 +2382,67 @@ def construction_notes(state: DraftState, base: Baseline) -> list[str]:
     return notes
 
 
+def slot_decay(state: DraftState) -> list[dict[str, Any]]:
+    """What the K and DST slots cost you by being filled at the last moment.
+
+    `points_left` grades a pick only against players gone by your very next
+    pick, so it is blind to a slot deferred across many picks while its pool
+    drains. In draft 1400911267358629888 the engine took a backup QB at 153
+    over a defense the audit called an even trade, legality then forced a
+    defense at 177, and the board had nothing left. `points_left` recorded 0.2
+    for that pick; the real cost was the defense that was there at 153 and
+    gone at 177, and nothing in the report showed it.
+
+    Scoped to K and DST on purpose. For a skill position "the best one was
+    still there three rounds ago" is not regret - you had to spend that pick on
+    something, and the something was usually worth more. K and DST are the only
+    slots where taking one a round or two earlier is close to free, which is
+    exactly why the engine defers them and exactly how it gets burned. The
+    lookback starts where the engine's own quota first lets it consider the
+    position, so this never reports a pick it was never allowed to make.
+    """
+    shape, players = state.shape, state.players
+    ordered = list(state.picks)
+    my_picks = [i + 1 for i, pk in enumerate(ordered)
+                if int(pk.get("draft_slot") or 0) == state.my_slot]
+    eligible_from = shape.rounds - 2          # the LATE_ONLY quota gate in decide()
+    out: list[dict[str, Any]] = []
+    for pos in sorted(LATE_ONLY):
+        need = int(shape.slots.get(pos, 0))
+        if need <= 0:
+            continue
+        taken_at = [n for n in my_picks
+                    if str(ordered[n - 1].get("player_id")) in players
+                    and players[str(ordered[n - 1].get("player_id"))].pos == pos]
+        for j in range(need):
+            if j >= len(taken_at):
+                out.append({"pos": pos, "slot": f"{pos}{j + 1}", "filled_at": None,
+                            "note": "never filled - lineup is not legal"})
+                continue
+            at = taken_at[j]
+            got = players[str(ordered[at - 1].get("player_id"))]
+            best_p, best_n, best_at = None, got.proj_adj, None
+            for n in my_picks:
+                if n >= at:
+                    break
+                if (n - 1) // shape.teams + 1 < eligible_from:
+                    continue                  # engine could not legally consider it yet
+                gone = {str(r.get("player_id") or "") for r in ordered[: n - 1]}
+                for x in players.values():
+                    if x.pos == pos and x.pid not in gone and x.proj_adj > best_n:
+                        best_p, best_n, best_at = x, x.proj_adj, n
+            if best_p is None:
+                continue
+            out.append({"pos": pos, "slot": f"{pos}{j + 1}", "filled_at": at,
+                        "got": got.name, "got_proj": round(got.proj_adj, 1),
+                        "best_earlier": best_p.name,
+                        "best_earlier_pick": best_at,
+                        "best_earlier_proj": round(best_n, 1),
+                        "proj_lost": round(best_n - got.proj_adj, 1)})
+    out.sort(key=lambda r: -r.get("proj_lost", 0.0))
+    return out
+
+
 def survival_scorecard(state: DraftState) -> dict[str, Any]:
     """Did the survival model actually predict this draft?
 
@@ -2440,7 +2501,7 @@ def format_autopsy(state: DraftState, audits: list[PickAudit], notes: list[str],
     rank = rankings.index(me) + 1 if me else 0
     shape = state.shape
     lines = [
-        "<b>DRAFT AUTOPSY v35</b>",
+        f"<b>DRAFT AUTOPSY {ENGINE_VERSION.upper()}</b>",
         f"Slot {state.my_slot} | {shape.teams}-team | {shape.ppr} PPR | "
         f"{shape.playoff_teams} playoff teams",
         f"Ranked #{rank} | {me.playoff_odds if me else 0:.0f}% playoffs | "
@@ -2519,7 +2580,7 @@ def analyze_and_report(state: DraftState, base: Baseline) -> None:
     print("FULL-LEAGUE ROSTERS", flush=True)
     print("=" * 68, flush=True)
     payload = build_roster_json(state, base)
-    out_path = f"draft_{state.draft_id}_full_rosters_v35.json"
+    out_path = f"draft_{state.draft_id}_full_rosters_{ENGINE_VERSION}.json"
     try:
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2, ensure_ascii=False)
@@ -2542,13 +2603,34 @@ def analyze_and_report(state: DraftState, base: Baseline) -> None:
     print(re.sub(r"<[^>]+>", "", card))
     send_telegram(card)
 
-    autopsy_path = f"draft_{state.draft_id}_autopsy_v35.json"
+    autopsy_path = f"draft_{state.draft_id}_autopsy_{ENGINE_VERSION}.json"
     try:
         with open(autopsy_path, "w", encoding="utf-8") as f:
+            roster_ids = state.slot_rosters.get(state.my_slot, [])
+            counts = counts_of(roster_ids, state.players)
+            missing = {pos: n for pos, n in holes(counts, state.shape).items()
+                       if pos not in ("skill", "total", "FLEX") and n > 0}
+            expected = len(my_pick_numbers(state.my_slot, state.shape.teams,
+                                           state.shape.rounds, state.shape.snake,
+                                           state.shape.reversal_round))
             json.dump({
                 "engine": ENGINE_VERSION, "draft_id": state.draft_id, "slot": state.my_slot,
+                # Draft B of 2026-09-02 had 14 picks and no defense, and nothing in
+                # the report said whether that was a bug or an unfinished draft.
+                "draft_status": state.status,
+                "picks_made": len(audits), "picks_expected": expected,
+                "complete": len(audits) >= expected,
+                "roster_legal": not missing,
+                "missing_starters": missing,
+                # the calibration the engine actually ran with - identifying which
+                # engine produced a report previously meant reverse-engineering
+                # these from the waiver floors
+                "replacement_levels": {k: round(v, 1) for k, v in base.repl.items()},
+                "waiver_floor_ppg": {k: round(v, 2) for k, v in base.stream_ppg.items()},
                 "points_left_on_board": round(sum(a.points_left for a in audits), 1),
                 "picks": [a.__dict__ for a in audits],
+                "slot_decay": slot_decay(state),
+                "survival_scorecard": survival_scorecard(state),
                 "construction_notes": notes,
                 "rankings": [t.__dict__ for t in rankings],
             }, f, indent=2, ensure_ascii=False)
@@ -2656,7 +2738,7 @@ def ingest_picks(state: DraftState, picks: list[dict]) -> None:
 
 
 def decision_log_path(draft_id: str) -> str:
-    return f"draft_{draft_id}_decisions_v35.json"
+    return f"draft_{draft_id}_decisions_{ENGINE_VERSION}.json"
 
 
 def log_decision(state: DraftState, pick_no: int, out: dict) -> None:
